@@ -317,7 +317,8 @@ Newer models also exist (gpt-5.2, gpt-5.4, gpt-oss-120b, o4 Mini, embeddings, wh
 ## Step 8 — Encourage the student to keep exploring
 
 The student is set up — now invite them to keep going, with you as their tutor. Suggest a few
-prompts they can try right now, for example:
+**questions they can ask you (Claude Code)** to keep learning. **Do not suggest terminal commands
+for them to type or run — only conversational questions for you to answer or act on.** For example:
 - "Please explain to me everything that was just accomplished."
 - "Given the current project context, how could I use the LiteLLM API to improve the product I'm building?"
 - "Show me how to send my own prompt and print the model's answer."
