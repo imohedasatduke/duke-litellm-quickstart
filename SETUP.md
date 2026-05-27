@@ -4,8 +4,13 @@
 > the Duke AI Gateway.** The student is a beginner who may have never used a
 > terminal, Python, or git. Work through the steps below **in order**. Before each
 > command, tell them in one plain sentence what it does and what they should expect
-> to see. Check before you assume anything is installed. You are **not done** until
-> Step 6 succeeds with a real model reply on their screen.
+> to see. Check before you assume anything is installed.
+>
+> **Adapt to where you are run.** The student may be in an empty folder OR — more
+> commonly — adding Gateway access to an **existing project**. Detect which in Step 0
+> and **merge into existing files** (`.env`, `.gitignore`, dependencies, `CLAUDE.md`)
+> rather than overwriting or recreating them. You are **not done** until Step 6
+> succeeds with a real model reply on their screen.
 
 The Duke AI Gateway is an OpenAI-compatible proxy (LiteLLM) at
 `https://litellm.oit.duke.edu`. Once set up, the student can call dozens of models —
@@ -13,12 +18,21 @@ including a **free, on-prem Mistral** — from their own Python code.
 
 ---
 
-## Step 0 — Get oriented
+## Step 0 — Detect the context
 
 1. Note the operating system (macOS, Windows, or Linux) and adjust commands accordingly.
-2. Choose a project folder with the student and `cd` into it. If they have no
-   preference, create one: `mkdir duke-ai && cd duke-ai`.
-3. Confirm with them that this is where their project will live.
+2. Look at the current folder (`ls -a`, check for `.git`) and decide which situation you're in:
+   - **Existing project** (the common case) — there are already source files and/or a
+     `.git`, `pyproject.toml`, `requirements.txt`, `package.json`, `.env`, or a virtual
+     environment. **Work inside this project and merge into what's already there — never
+     overwrite or recreate files that exist.**
+   - **Fresh start** — the folder is empty / has no project yet. Pick a folder with the
+     student (or `mkdir duke-ai && cd duke-ai`) and build from scratch.
+3. Take a quick inventory and tell the student what you found, so later steps can adapt:
+   - Dependency setup: a `pyproject.toml` (uv/poetry), `requirements.txt`, `Pipfile`, or `environment.yml`?
+   - An existing virtual environment (`.venv/`, `venv/`) or an active conda env?
+   - Existing `.env`, `.env.example`, `.gitignore`, and `CLAUDE.md` files?
+   - Is `python-dotenv` (or another env loader) already a dependency?
 
 ## Step 1 — Get a Duke AI Gateway API key
 
@@ -37,19 +51,30 @@ Direct link to keys: **https://dashboard.ai.duke.edu/api-keys** · FAQ: **https:
 > Do **not** ask the student to paste the key to you in chat. They'll put it in a
 > `.env` file themselves in Step 3.
 
-## Step 2 — Set up Python tooling (detect what's installed)
+## Step 2 — Get the dependencies into the project's environment
 
-Detect the environment and pick the simplest working path:
+The only packages needed are **`openai`** and **`python-dotenv`** (skip
+`python-dotenv` if the project already loads `.env` another way).
 
-1. Check for **uv** (a fast, all-in-one Python tool): run `uv --version`.
+**First, reuse what the project already has** (from your Step 0 inventory):
+
+- **uv-managed project** (`pyproject.toml` + `uv.lock`): `uv add openai python-dotenv`
+- **`requirements.txt`**: add `openai` and `python-dotenv` as new lines (if not already
+  listed), then install into the project's environment: `pip install openai python-dotenv`
+- **Existing virtualenv (`.venv`/`venv`) or conda env**: activate it first, then `pip install openai python-dotenv`
+- **Poetry / Pipenv**: `poetry add openai python-dotenv` or `pipenv install openai python-dotenv`
+
+> Do **not** run `uv init` or create a second virtual environment inside a project that already has one.
+
+**Only if the folder has no environment yet** (fresh start), pick the simplest path:
+
+1. Check for **uv** (a fast, all-in-one Python tool): `uv --version`.
    - **If uv is installed**, use it — it can install Python itself if needed:
      ```bash
      uv init .              # only if there's no pyproject.toml yet
      uv add openai python-dotenv
      ```
-     Later, run scripts with `uv run python hello.py`.
-   - **If uv is NOT installed**, check for Python 3: run `python3 --version`
-     (on Windows, try `python --version`).
+   - **If uv is NOT installed**, check for Python 3: `python3 --version` (Windows: `python --version`).
      - **If Python 3.9+ is present**, create and activate a virtual environment, then install with pip:
        ```bash
        python3 -m venv .venv
@@ -57,44 +82,54 @@ Detect the environment and pick the simplest working path:
        # .venv\Scripts\activate         # Windows PowerShell
        pip install openai python-dotenv
        ```
-     - **If neither uv nor Python is installed**, the simplest fix is to install **uv**
-       (it bundles Python management). Offer to run the official installer and explain it first:
+     - **If neither uv nor Python is installed**, install **uv** (it bundles Python management),
+       then return to the uv path above:
        - macOS/Linux: `curl -LsSf https://astral.sh/uv/install.sh | sh`
        - Windows (PowerShell): `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"`
-       Then restart the terminal and return to the uv path above.
 
-Explain to the student which path you took and why.
+Tell the student which environment you used and how to activate/run it later.
 
-## Step 3 — Store the API key safely
+## Step 3 — Store the API key safely (merge, don't overwrite)
 
-1. Create a file named `.env` in the project folder with this single line (paste the
-   real key after the `=`, **no quotes, no spaces**):
-   ```
-   LITELLM_TOKEN=sk-paste-the-students-key-here
-   ```
-   Have the **student** paste their key, or use an editor — don't print the full key back to them.
-2. Create a `.gitignore` so the key can never be committed:
-   ```
-   .env
-   .venv/
-   __pycache__/
-   *.pyc
-   ```
-3. Confirm `.env` is ignored: `git status` (if it's a git repo) should **not** list `.env`.
+**`.env`:**
+- If a `.env` **already exists**, first check it doesn't already define `LITELLM_TOKEN`, then
+  **append** the key as a new line. **Do not rewrite the file or touch existing variables.**
+- If there's no `.env`, create one.
 
-Also drop a `.env.example` (safe to share/commit) so they remember the format:
+Either way it should contain this line (real key after `=`, **no quotes, no spaces**):
+```
+LITELLM_TOKEN=sk-paste-the-students-key-here
+```
+Have the **student** paste their own key, or use an editor — don't print the full key back to them.
+
+**`.gitignore`:**
+- If one exists, make sure `.env` is listed; **append** it if missing (don't remove existing entries).
+- If there's none, create it with:
+  ```
+  .env
+  .venv/
+  __pycache__/
+  *.pyc
+  ```
+- Then confirm: `git status` must **not** show `.env`. If `.env` was *already tracked* in this
+  repo, warn the student and run `git rm --cached .env` so the key isn't committed.
+
+**`.env.example`** (safe to commit): if one exists, add a `LITELLM_TOKEN=` line (and the optional
+`LITELLM_MODEL` comment); otherwise create it:
 ```
 # Your Duke AI Gateway API key. Get one at https://dashboard.ai.duke.edu/api-keys
 # Paste the key after the = with no quotes and no spaces.
 LITELLM_TOKEN=
 
-# Optional: which model hello.py uses. Defaults to the free "Mistral on-site".
+# Optional: which model to use. Defaults to the free "Mistral on-site".
 # LITELLM_MODEL=gpt-5-mini
 ```
 
-## Step 4 — Write the hello-world script
+## Step 4 — Add a quick test script (without clobbering anything)
 
-Create `hello.py` with exactly this content:
+Create a small script to prove the connection works. **Don't overwrite an existing file** — if
+`hello.py` is already taken, name it `gateway_hello.py` (or put it in a `scratch/`/`examples/`
+folder). Use exactly this content:
 
 ```python
 #!/usr/bin/env python3
@@ -139,6 +174,17 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content)
 ```
 
+> **Adding Gateway calls to existing code instead?** The key lines are the same anywhere:
+> ```python
+> from openai import OpenAI
+> client = OpenAI(api_key=os.environ["LITELLM_TOKEN"],
+>                 base_url="https://litellm.oit.duke.edu/v1")
+> resp = client.chat.completions.create(
+>     model="Mistral on-site",
+>     messages=[{"role": "user", "content": "..."}])
+> ```
+> Offer to wire this into the file the student actually wants to call the Gateway from.
+
 ## Step 5 — (Optional) See which models the key can use
 
 Helpful so the student knows their choices. Run a tiny snippet:
@@ -154,9 +200,11 @@ base_url='https://litellm.oit.duke.edu/v1').models.list().data)))"
 
 ## Step 6 — Run it and confirm a real reply (the success gate)
 
-Run the script:
-- uv path: `uv run python hello.py`
-- pip path: `python hello.py` (with the venv activated)
+Run the test script you created, using the environment from Step 2:
+- **uv project:** `uv run python hello.py`
+- **venv / conda:** `python hello.py` (with the environment activated)
+
+(Use whatever filename you chose — e.g. `gateway_hello.py`.)
 
 **You are done only when the model's actual reply prints on screen.** Show it to the
 student and congratulate them. Then show them how to ask their own question:
@@ -164,24 +212,26 @@ student and congratulate them. Then show them how to ask their own question:
 
 If it errors, go to **Troubleshooting** below, fix it, and re-run.
 
-## Step 7 — Leave a CLAUDE.md so future sessions know the Gateway
+## Step 7 — Record the setup in CLAUDE.md
 
-Create `CLAUDE.md` in the project folder so any future Claude Code session here
-already understands the setup:
+So any future Claude Code session in this project already understands the Gateway:
+- **If a `CLAUDE.md` already exists, append** the section below (don't overwrite the student's notes).
+- If there's none, create `CLAUDE.md` with it.
 
 ```markdown
-# Project: Duke AI Gateway
+## Duke AI Gateway
 
 This project calls Duke's AI Gateway (a LiteLLM proxy), which is OpenAI-compatible.
 
-## How to make calls
+**How to make calls**
 - Base URL: https://litellm.oit.duke.edu/v1
-- API key: read from the `LITELLM_TOKEN` environment variable (stored in .env, never committed)
+- API key: read from the `LITELLM_TOKEN` environment variable (in .env, never committed)
 - SDK: the OpenAI Python SDK (`from openai import OpenAI`)
 - Use `client.chat.completions.create(...)` — it works across ALL Gateway models
   (the Responses API only works for OpenAI models).
 
-## Models & cost (USD per 1M tokens) — run `/v1/models` for the full live list
+**Models & cost (USD per 1M tokens)** — run `/v1/models` for the full live list
+
 | Model id           | Input | Output | When to use |
 |--------------------|-------|--------|-------------|
 | Mistral on-site    | FREE  | FREE   | Default. Bulk / structured work / learning. |
@@ -195,10 +245,9 @@ This project calls Duke's AI Gateway (a LiteLLM proxy), which is OpenAI-compatib
 | GPT 4.1            | $2.00 | $8.00  | Strong all-around. |
 
 Model ids are case- and space-sensitive (e.g. "Mistral on-site", "GPT 4.1 Nano").
-Newer models also exist (gpt-5.2, gpt-5.4, gpt-oss-120b, o4 Mini, embeddings,
-whisper) — check the dashboard for availability and pricing.
+Newer models also exist (gpt-5.2, gpt-5.4, gpt-oss-120b, o4 Mini, embeddings, whisper).
 
-## Rules
+**Rules**
 - Default to the free "Mistral on-site" unless quality genuinely requires more.
 - Never hardcode or commit the API key. It lives in .env (gitignored).
 ```
@@ -231,7 +280,7 @@ To change the model, set `LITELLM_MODEL` in `.env`, e.g. `LITELLM_MODEL=gpt-5-mi
 | Symptom | Likely cause & fix |
 |---------|--------------------|
 | `401` / `AuthenticationError` | Key is wrong, expired, or has extra spaces/quotes in `.env`. Re-copy it from https://dashboard.ai.duke.edu/api-keys and make the line exactly `LITELLM_TOKEN=sk-...`. |
-| `No API key found` | `.env` is missing, in the wrong folder, or empty. It must sit in the same folder you run `hello.py` from. |
+| `No API key found` | `.env` is missing, in the wrong folder, or empty. It must sit in the same folder you run the script from. |
 | `NotFoundError` / "model not found" | The model id is mistyped — they're case- and space-sensitive. Run Step 5 and copy an exact id. |
 | `ModuleNotFoundError: openai` / `dotenv` | Dependencies didn't install, or the venv isn't active. Re-run the install from Step 2 (and `source .venv/bin/activate` for the pip path). |
 | Connection / timeout errors | Some Duke services require being **on campus network or the Duke VPN**. Connect and retry. |
