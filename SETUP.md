@@ -122,7 +122,7 @@ Have the **student** paste their own key, or use an editor — don't print the f
 LITELLM_TOKEN=
 
 # Optional: which model to use. Defaults to the free "Mistral on-site".
-# LITELLM_MODEL=gpt-5-mini
+# LITELLM_MODEL=gpt-5-nano
 ```
 
 ## Step 4 — Add a quick test script (without clobbering anything)
@@ -157,8 +157,9 @@ if not token:
         "Get a key at https://dashboard.ai.duke.edu/api-keys"
     )
 
-# Free, on-prem model — a great default for learning and bulk work.
-# Set LITELLM_MODEL in .env to switch (e.g. "gpt-5-mini" for higher-quality chat).
+# Free, on-prem model — a great default that never touches your $1/day budget.
+# Set LITELLM_MODEL in .env to switch (e.g. "gpt-5-nano" as a near-free backup,
+# or "gpt-5-mini" for higher-quality chat).
 MODEL = os.getenv("LITELLM_MODEL", "Mistral on-site")
 
 client = OpenAI(api_key=token, base_url="https://litellm.oit.duke.edu/v1")
@@ -185,9 +186,9 @@ print(response.choices[0].message.content)
 > ```
 > Offer to wire this into the file the student actually wants to call the Gateway from.
 
-## Step 5 — (Optional) See which models the key can use
+## Step 5 — Explore the models and understand the budget
 
-Helpful so the student knows their choices. Run a tiny snippet:
+List the models the key can use so the student sees their options:
 
 ```python
 python -c "import os; from dotenv import load_dotenv; from openai import OpenAI; load_dotenv(); \
@@ -196,7 +197,21 @@ base_url='https://litellm.oit.duke.edu/v1').models.list().data)))"
 ```
 
 (With uv, prefix with `uv run`.) Model ids are **case- and space-sensitive** — e.g.
-`Mistral on-site`, `GPT 4.1 Nano`, `gpt-5-mini`. See the cheat-sheet below.
+`Mistral on-site`, `GPT 4.1 Nano`, `gpt-5-mini`.
+
+Now **explain the pricing and budget to the student** in plain language:
+- Models bill per **token** (roughly word-pieces), with separate **input** (what you send) and
+  **output** (what the model writes back) rates — see the cheat-sheet below.
+- **Students get about $1 of API usage per day.** That's plenty for lots of calls, but the
+  premium models can burn through it quickly, so choose deliberately.
+- **Default → `Mistral on-site`: it's completely free** (runs on Duke's own hardware), so it
+  never touches the $1 budget. Best for learning, bulk, and structured tasks.
+- **Backup → `gpt-5-nano`:** when a cloud model is needed, it's the cheapest ($0.05 in /
+  $0.40 out per 1M tokens), so $1/day stretches a very long way.
+- Reach for pricier models (`gpt-5-mini`, `GPT 4.1`, …) only when quality genuinely needs it.
+
+Confirm the test script is set to the free default (`Mistral on-site`) and show the student how to
+switch models later by setting `LITELLM_MODEL` in `.env`. Then continue to Step 6.
 
 ## Step 6 — Run it and confirm a real reply (the success gate)
 
@@ -248,16 +263,35 @@ Model ids are case- and space-sensitive (e.g. "Mistral on-site", "GPT 4.1 Nano")
 Newer models also exist (gpt-5.2, gpt-5.4, gpt-oss-120b, o4 Mini, embeddings, whisper).
 
 **Rules**
-- Default to the free "Mistral on-site" unless quality genuinely requires more.
+- Students get ~$1/day of API usage. Default to the free "Mistral on-site" (it doesn't count
+  against the budget); use "gpt-5-nano" as the cheap cloud backup; reserve pricier models for
+  when quality genuinely requires it.
 - Never hardcode or commit the API key. It lives in .env (gitignored).
 ```
 
 ---
 
+## Step 8 — Encourage the student to keep exploring
+
+The student is set up — now invite them to keep going, with you as their tutor. Suggest a few
+prompts they can try right now, for example:
+- "Please explain to me everything that was just accomplished."
+- "Given the current project context, how could I use the LiteLLM API to improve the product I'm building?"
+- "Show me how to send my own prompt and print the model's answer."
+- "How do I switch to a different model, and how much would it cost?"
+- "How can I check how much of my $1 daily budget I've used so far?"
+
+Answer in plain, beginner-friendly language, and offer to help them write their first real call
+in their own project.
+
+---
+
 ## Model & cost cheat-sheet (for the student)
 
-Free is your friend. **Default to `Mistral on-site`** for learning and bulk tasks;
-reach for **`gpt-5-mini`** when you want noticeably better chat/reasoning for cheap.
+**You get about $1 of API usage per day.** Free is your friend:
+- **Default to `Mistral on-site`** — it's free and never touches your budget (learning, bulk, structured tasks).
+- **Backup: `gpt-5-nano`** — the cheapest cloud model when you need one.
+- Reach for **`gpt-5-mini`** or **`GPT 4.1`** only when quality genuinely requires it.
 
 | Model id           | Input | Output | When to use |
 |--------------------|-------|--------|-------------|
