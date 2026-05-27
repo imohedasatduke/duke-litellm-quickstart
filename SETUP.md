@@ -106,13 +106,15 @@ Tell the student which environment you used and how to activate/run it later.
 
 **`.env`:**
 - If a `.env` **already exists**, first check it doesn't already define `LITELLM_TOKEN`, then
-  **append** the key as a new line. **Do not rewrite the file or touch existing variables.**
+  **append** the lines below. **Do not rewrite the file or touch existing variables.**
 - If there's no `.env`, create one.
 
-Either way it should contain this line (real key after `=`, **no quotes, no spaces**):
+Either way it should contain these two lines (real key after `=`; no quotes, and no spaces around the `=`):
 ```
 LITELLM_TOKEN=sk-paste-the-students-key-here
+LITELLM_MODEL=Mistral on-site
 ```
+The `LITELLM_MODEL` line pins the free default, so the script uses it unless the student deliberately changes it.
 Have the **student** paste their own key, or use an editor — don't print the full key back to them.
 
 **`.gitignore`:**
@@ -134,8 +136,9 @@ Have the **student** paste their own key, or use an editor — don't print the f
 # Paste the key after the = with no quotes and no spaces.
 LITELLM_TOKEN=
 
-# Optional: which model to use. Defaults to the free "Mistral on-site".
-# LITELLM_MODEL=gpt-5-nano
+# Which model to use. The free "Mistral on-site" is the recommended default;
+# switch to a cheap cloud backup like gpt-5-nano only if you need it.
+LITELLM_MODEL=Mistral on-site
 ```
 
 ## Step 4 — Add a quick test script (without clobbering anything)
@@ -235,8 +238,7 @@ Run the test script you created, using the environment from Step 2:
 (Use whatever filename you chose — e.g. `gateway_hello.py`.)
 
 **You are done only when the model's actual reply prints on screen.** Show it to the
-student and congratulate them. Then show them how to ask their own question:
-`python hello.py "your question here"`.
+student and congratulate them.
 
 If it errors, go to **Troubleshooting** below, fix it, and re-run.
 
