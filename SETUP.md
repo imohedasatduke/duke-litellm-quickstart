@@ -11,6 +11,10 @@
 > and **merge into existing files** (`.env`, `.gitignore`, dependencies, `CLAUDE.md`)
 > rather than overwriting or recreating them. You are **not done** until Step 6
 > succeeds with a real model reply on their screen.
+>
+> **Go one step at a time.** This guide has explicit "⏸ Pause" gates between steps. At each one,
+> briefly recap what just happened, then **ask the student for explicit permission before starting
+> the next step** and wait for their "yes." Don't run several steps back-to-back.
 
 The Duke AI Gateway is an OpenAI-compatible proxy (LiteLLM) at
 `https://litellm.oit.duke.edu`. Once set up, the student can call dozens of models —
@@ -47,6 +51,9 @@ all progress. Handle it up front, while there's nothing to lose.
    - Existing `.env`, `.env.example`, `.gitignore`, and `CLAUDE.md` files?
    - Is `python-dotenv` (or another env loader) already a dependency?
 
+> **⏸ Pause.** Recap what just happened in a sentence or two, then ask the student for explicit
+> permission to continue and **wait for their reply before starting this step.**
+
 ## Step 1 — Get a Duke AI Gateway API key
 
 Walk the student through this in their **web browser** (they need their Duke NetID):
@@ -63,6 +70,9 @@ Direct link to keys: **https://dashboard.ai.duke.edu/api-keys** · FAQ: **https:
 
 > Do **not** ask the student to paste the key to you in chat. They'll put it in a
 > `.env` file themselves in Step 3.
+
+> **⏸ Pause.** Recap what just happened in a sentence or two, then ask the student for explicit
+> permission to continue and **wait for their reply before starting this step.**
 
 ## Step 2 — Get the dependencies into the project's environment
 
@@ -102,6 +112,9 @@ The only packages needed are **`openai`** and **`python-dotenv`** (skip
 
 Tell the student which environment you used and how to activate/run it later.
 
+> **⏸ Pause.** Recap what just happened in a sentence or two, then ask the student for explicit
+> permission to continue and **wait for their reply before starting this step.**
+
 ## Step 3 — Store the API key safely (merge, don't overwrite)
 
 **`.env`:**
@@ -140,6 +153,9 @@ LITELLM_TOKEN=
 # switch to a cheap cloud backup like gpt-5-nano only if you need it.
 LITELLM_MODEL=Mistral on-site
 ```
+
+> **⏸ Pause.** Recap what just happened in a sentence or two, then ask the student for explicit
+> permission to continue and **wait for their reply before starting this step.**
 
 ## Step 4 — Add a quick test script (without clobbering anything)
 
@@ -202,6 +218,9 @@ print(response.choices[0].message.content)
 > ```
 > Offer to wire this into the file the student actually wants to call the Gateway from.
 
+> **⏸ Pause.** Recap what just happened in a sentence or two, then ask the student for explicit
+> permission to continue and **wait for their reply before starting this step.**
+
 ## Step 5 — Explore the models and understand the budget
 
 List the models the key can use so the student sees their options:
@@ -227,7 +246,10 @@ Now **explain the pricing and budget to the student** in plain language:
 - Reach for pricier models (`gpt-5-mini`, `GPT 4.1`, …) only when quality genuinely needs it.
 
 Confirm the test script is set to the free default (`Mistral on-site`) and show the student how to
-switch models later by setting `LITELLM_MODEL` in `.env`. Then continue to Step 6.
+switch models later by setting `LITELLM_MODEL` in `.env`.
+
+> **⏸ Pause.** Recap what just happened in a sentence or two, then ask the student for explicit
+> permission to continue and **wait for their reply before starting this step.**
 
 ## Step 6 — Run it and confirm a real reply (the success gate)
 
@@ -241,6 +263,9 @@ Run the test script you created, using the environment from Step 2:
 student and congratulate them.
 
 If it errors, go to **Troubleshooting** below, fix it, and re-run.
+
+> **⏸ Pause.** Recap what just happened in a sentence or two, then ask the student for explicit
+> permission to continue and **wait for their reply before starting this step.**
 
 ## Step 7 — Record the setup in CLAUDE.md
 
@@ -285,6 +310,9 @@ Newer models also exist (gpt-5.2, gpt-5.4, gpt-oss-120b, o4 Mini, embeddings, wh
 ```
 
 ---
+
+> **⏸ Pause.** Recap what just happened in a sentence or two, then ask the student for explicit
+> permission to continue and **wait for their reply before starting this step.**
 
 ## Step 8 — Encourage the student to keep exploring
 
