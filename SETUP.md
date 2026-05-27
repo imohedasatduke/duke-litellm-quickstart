@@ -18,17 +18,30 @@ including a **free, on-prem Mistral** — from their own Python code.
 
 ---
 
-## Step 0 — Detect the context
+## Step 0 — Make sure a folder is open, then detect the context
 
-1. Note the operating system (macOS, Windows, or Linux) and adjust commands accordingly.
-2. Look at the current folder (`ls -a`, check for `.git`) and decide which situation you're in:
+**Do this before anything else.** If the student opened a brand-new VS Code window with *no folder*
+open, then creating a folder later and opening it will **reload VS Code and end this chat**, losing
+all progress. Handle it up front, while there's nothing to lose.
+
+1. Check where you are: run `pwd`. If it returns the home directory (e.g. `/Users/<name>`,
+   `/home/<name>`, or `C:\Users\<name>`) and the VS Code Explorer (left sidebar) shows no open
+   folder, treat this as **no folder open** → go to step 2. Otherwise a folder is open → skip to step 3.
+2. **No folder open — create and open one first:**
+   - Create a project folder with the student (or use a default): `mkdir -p ~/duke-ai`
+   - Have them open it now: **File → Open Folder → pick that folder** (or run `code ~/duke-ai`).
+   - ⚠️ **Warn them first:** opening a folder reloads VS Code and **ends this chat session** — that's
+     expected and fine. Once it reopens, they should start Claude Code again and **paste the same
+     setup prompt** to continue; you'll resume right here, now safely inside the folder.
+   - Stop and wait until they're back, working inside the opened folder.
+3. Note the operating system (macOS, Windows, or Linux) and adjust commands accordingly.
+4. Look at the folder (`ls -a`, check for `.git`) and decide which situation you're in:
    - **Existing project** (the common case) — there are already source files and/or a
      `.git`, `pyproject.toml`, `requirements.txt`, `package.json`, `.env`, or a virtual
      environment. **Work inside this project and merge into what's already there — never
      overwrite or recreate files that exist.**
-   - **Fresh start** — the folder is empty / has no project yet. Pick a folder with the
-     student (or `mkdir duke-ai && cd duke-ai`) and build from scratch.
-3. Take a quick inventory and tell the student what you found, so later steps can adapt:
+   - **Fresh start** — the folder is open but empty / has no project yet. Build from scratch.
+5. Take a quick inventory and tell the student what you found, so later steps can adapt:
    - Dependency setup: a `pyproject.toml` (uv/poetry), `requirements.txt`, `Pipfile`, or `environment.yml`?
    - An existing virtual environment (`.venv/`, `venv/`) or an active conda env?
    - Existing `.env`, `.env.example`, `.gitignore`, and `CLAUDE.md` files?
